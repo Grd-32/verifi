@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: revocation-service
+  namespace: kyc-vault
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: revocation-service
+  template:
+    metadata:
+      labels:
+        app: revocation-service
+    spec:
+      containers:
+      - name: revocation-service
+        image: kyc-vault/revocation-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3005
+        env:
+        - name: DB_HOST
+          value: postgres
+        - name: DB_NAME
+          value: "revocation-db"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: kyc-vault-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kyc-vault-secrets
+              key: db-password
+        - name: PORT
+          value: "3005"
+        resources:
+          requests:
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: revocation-service
+  namespace: kyc-vault
+spec:
+  selector:
+    app: revocation-service
+  ports:
+  - protocol: TCP
+    port: 3005
+    targetPort: 3005
+  type: ClusterIP

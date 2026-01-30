@@ -1,0 +1,12 @@
+# terraform.tfvars.example
+# Copy to terraform.tfvars and update with your values
+
+aws_region        = "us-east-1"
+environment       = "staging"
+cluster_name      = "kyc-vault-staging"
+cluster_version   = "1.28"
+instance_types    = ["t3.medium"]
+desired_capacity  = 2
+max_capacity      = 5
+db_instance_class = "db.t3.micro"
+db_allocated_storage = 100

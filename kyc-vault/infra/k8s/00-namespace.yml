@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kyc-vault
+  labels:
+    name: kyc-vault
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kyc-vault-secrets
+  namespace: kyc-vault
+type: Opaque
+stringData:
+  db-password: "kyc-secure-password"
+  db-user: "kyc-admin"
+  jwt-secret: "your-jwt-secret-key-change-in-production"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kyc-vault-config
+  namespace: kyc-vault
+data:
+  node-env: "production"
+  log-level: "info"
+  db-type: "postgres"

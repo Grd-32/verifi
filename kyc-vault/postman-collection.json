@@ -1,0 +1,100 @@
+{
+  "info": {
+    "name": "KYC Vault SSI Ecosystem",
+    "description": "Postman collection for KYC Vault SSI operations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Veramo Agent",
+      "item": [
+        {
+          "name": "Create DID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \"didMethod\": \"did:ion\"\\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3001/api/did",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "did"]
+            }
+          }
+        },
+        {
+          "name": "Issue Credential",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \"issuerDid\": \"did:ion:issuer123\",\\n  \"subjectDid\": \"did:ion:subject456\",\\n  \"claims\": {\\n    \"givenName\": \"John\",\\n    \"familyName\": \"Doe\"\\n  }\\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3001/api/vc/issue",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "vc", "issue"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Issuer Service",
+      "item": [
+        {
+          "name": "Create Template",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "http://localhost:3002/api/issuer/templates",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["api", "issuer", "templates"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \"name\": \"National ID\",\\n  \"schema\": {},\\n  \"issuerDid\": \"did:ion:issuer123\"\\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verifier Service",
+      "item": [
+        {
+          "name": "Create Presentation Request",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "http://localhost:3003/api/verifier/request",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["api", "verifier", "request"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+# Terraform backend configuration example
+# Uncomment and update to use remote state
+
+terraform {
+  backend "s3" {
+    bucket         = "kyc-vault-terraform-state"
+    key            = "prod/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "kyc-vault-terraform-locks"
+    encrypt        = true
+  }
+}

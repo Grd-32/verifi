@@ -1,0 +1,8 @@
+{
+	"dependencies": {
+		"expo-splash-screen": "^31.0.13",
+		"expo-status-bar": "^3.0.9",
+		"react-native-uuid": "^2.0.3",
+		"uuid": "9.0.1"
+	}
+}

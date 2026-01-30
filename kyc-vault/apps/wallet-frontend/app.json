@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "kyc-vault-wallet",
+    "slug": "kyc-vault-wallet",
+    "version": "1.0.0",
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow KYC Vault to access your camera for ID verification and QR code scanning.",
+          "microphonePermission": "Allow KYC Vault to access your microphone (optional)."
+        }
+      ],
+      [
+        "expo-document-picker",
+        {
+          "documentPickerPermission": "Allow KYC Vault to access your documents for identity verification."
+        }
+      ],
+      [
+        "expo-file-system"
+      ]
+    ],
+    "permissions": [
+      "camera",
+      "mediaLibrary",
+      "cameraRoll"
+    ],
+    "ios": {
+      "supportsTabletMode": true,
+      "bundleIdentifier": "com.kycvault.wallet"
+    },
+    "android": {
+      "package": "com.kycvault.wallet",
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
+      "jsEngine": "jsc"
+    },
+
+    "userInterfaceStyle": "dark"
+  }
+}

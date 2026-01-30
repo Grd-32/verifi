@@ -1,0 +1,15 @@
+{
+  "name": "@kyc-vault/common-types",
+  "version": "1.0.0",
+  "description": "Shared types and interfaces for KYC Vault SSI ecosystem",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src/**/*.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

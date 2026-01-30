@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifier Service - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 30px;
+        }
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .header-icon {
+            font-size: 40px;
+        }
+        .header h1 {
+            font-size: 28px;
+            color: #f1f5f9;
+        }
+        .header-subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #1e293b;
+            border-radius: 6px;
+            border: 1px solid #334155;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .stat-label {
+            color: #94a3b8;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 28px;
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .endpoint-list {
+            display: grid;
+            gap: 12px;
+        }
+        .endpoint {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #0f172a;
+            border-radius: 6px;
+            border-left: 3px solid #8b5cf6;
+            transition: all 0.2s;
+        }
+        .endpoint:hover {
+            border-left-color: #06b6d4;
+            background: #1e293b;
+        }
+        .method {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-right: 12px;
+            min-width: 50px;
+            text-align: center;
+        }
+        .method-get { background: #065f46; color: #d1fae5; }
+        .method-post { background: #1e3a8a; color: #bfdbfe; }
+        .method-put { background: #7c2d12; color: #fed7aa; }
+        .method-delete { background: #7f1d1d; color: #fecaca; }
+        .path {
+            font-family: 'Courier New', monospace;
+            color: #94a3b8;
+            font-size: 13px;
+            flex: 1;
+        }
+        .description {
+            color: #64748b;
+            font-size: 12px;
+            margin-left: auto;
+        }
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .nav-link {
+            padding: 8px 16px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #8b5cf6;
+            text-decoration: none;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-link:hover {
+            background: #1e293b;
+            border-color: #8b5cf6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="header-title">
+                    <div class="header-icon">✓</div>
+                    <div>
+                        <h1>Verifier Service</h1>
+                        <div class="header-subtitle">Credential verification and validation</div>
+                    </div>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Online</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Port</div>
+                <div class="stat-value">3003</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Endpoints</div>
+                <div class="stat-value">8</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Status</div>
+                <div class="stat-value" style="color: #10b981;">✓ Running</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">
+                <span>🔍 Verification</span>
+            </div>
+            <div class="endpoint-list">
+                <div class="endpoint">
+                    <div class="method method-post">POST</div>
+                    <div class="path">/api/presentations/verify</div>
+                    <div class="description">Verify presentation</div>
+                </div>
+                <div class="endpoint">
+                    <div class="method method-post">POST</div>
+                    <div class="path">/api/credentials/verify</div>
+                    <div class="description">Verify credential</div>
+                </div>
+                <div class="endpoint">
+                    <div class="method method-post">POST</div>
+                    <div class="path">/api/compliance/check</div>
+                    <div class="description">Check compliance status</div>
+                </div>
+                <div class="endpoint">
+                    <div class="method method-get">GET</div>
+                    <div class="path">/api/verification/:id</div>
+                    <div class="description">Get verification result</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">
+                <span>📋 Management</span>
+            </div>
+            <div class="endpoint-list">
+                <div class="endpoint">
+                    <div class="method method-get">GET</div>
+                    <div class="path">/api/verifications</div>
+                    <div class="description">List verifications</div>
+                </div>
+                <div class="endpoint">
+                    <div class="method method-put">PUT</div>
+                    <div class="path">/api/verification/:id</div>
+                    <div class="description">Update verification</div>
+                </div>
+                <div class="endpoint">
+                    <div class="method method-delete">DELETE</div>
+                    <div class="path">/api/verification/:id</div>
+                    <div class="description">Delete verification</div>
+                </div>
+                <div class="endpoint">
+                    <div class="method method-get">GET</div>
+                    <div class="path">/health</div>
+                    <div class="description">Health check</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="nav-links">
+            <a class="nav-link" href="http://localhost:3003">← Service API</a>
+            <a class="nav-link" href="http://localhost:5000/admin">Dashboard Hub</a>
+            <a class="nav-link" href="http://localhost:3004/admin">Notifications →</a>
+        </div>
+    </div>
+</body>
+</html>

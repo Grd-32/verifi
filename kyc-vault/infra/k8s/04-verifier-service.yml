@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: verifier-service
+  namespace: kyc-vault
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: verifier-service
+  template:
+    metadata:
+      labels:
+        app: verifier-service
+    spec:
+      containers:
+      - name: verifier-service
+        image: kyc-vault/verifier-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3003
+        env:
+        - name: DB_HOST
+          value: postgres
+        - name: DB_NAME
+          value: "verifier-db"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: kyc-vault-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kyc-vault-secrets
+              key: db-password
+        - name: VERAMO_AGENT_URL
+          value: "http://veramo-agent:3001"
+        - name: REVOCATION_SERVICE_URL
+          value: "http://revocation-service:3005"
+        - name: PORT
+          value: "3003"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: verifier-service
+  namespace: kyc-vault
+spec:
+  selector:
+    app: verifier-service
+  ports:
+  - protocol: TCP
+    port: 3003
+    targetPort: 3003
+  type: ClusterIP

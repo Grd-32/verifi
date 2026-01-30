@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: issuer-service
+  namespace: kyc-vault
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: issuer-service
+  template:
+    metadata:
+      labels:
+        app: issuer-service
+    spec:
+      containers:
+      - name: issuer-service
+        image: kyc-vault/issuer-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3002
+        env:
+        - name: DB_HOST
+          value: postgres
+        - name: DB_NAME
+          value: "issuer-db"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: kyc-vault-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kyc-vault-secrets
+              key: db-password
+        - name: VERAMO_AGENT_URL
+          value: "http://veramo-agent:3001"
+        - name: PORT
+          value: "3002"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: issuer-service
+  namespace: kyc-vault
+spec:
+  selector:
+    app: issuer-service
+  ports:
+  - protocol: TCP
+    port: 3002
+    targetPort: 3002
+  type: ClusterIP

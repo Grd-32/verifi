@@ -1,0 +1,191 @@
+{
+  "info": {
+    "title": "KYC Vault SSI Ecosystem API",
+    "version": "1.0.0",
+    "description": "Comprehensive REST API for decentralized KYC/SSI operations",
+    "contact": {
+      "name": "KYC Vault Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "Veramo Agent (Development)"
+    },
+    {
+      "url": "http://localhost:3002",
+      "description": "Issuer Service (Development)"
+    },
+    {
+      "url": "http://localhost:3003",
+      "description": "Verifier Service (Development)"
+    },
+    {
+      "url": "http://localhost:3004",
+      "description": "Notification Service (Development)"
+    },
+    {
+      "url": "http://localhost:3005",
+      "description": "Revocation Service (Development)"
+    }
+  ],
+  "paths": {
+    "/api/did": {
+      "post": {
+        "tags": ["Veramo Agent"],
+        "summary": "Create a new DID",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "didMethod": {
+                    "type": "string",
+                    "enum": ["did:ion", "did:key", "did:ethr"],
+                    "default": "did:ion"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "DID created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "provider": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vc/issue": {
+      "post": {
+        "tags": ["Veramo Agent"],
+        "summary": "Issue a verifiable credential",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "issuerDid": { "type": "string" },
+                  "subjectDid": { "type": "string" },
+                  "schemaId": { "type": "string" },
+                  "claims": { "type": "object" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credential issued successfully"
+          }
+        }
+      }
+    },
+    "/api/issuer/templates": {
+      "post": {
+        "tags": ["Issuer Service"],
+        "summary": "Create credential template",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "schema": { "type": "object" },
+                  "issuerDid": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/verifier/request": {
+      "post": {
+        "tags": ["Verifier Service"],
+        "summary": "Create presentation request",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "verifierDid": { "type": "string" },
+                  "requestedCredentials": { "type": "array" },
+                  "purpose": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notify/aml-refresh": {
+      "post": {
+        "tags": ["Notification Service"],
+        "summary": "Send AML refresh request",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string" },
+                  "type": { "type": "string" },
+                  "holderDid": { "type": "string" },
+                  "credentialIds": { "type": "array" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/revocation/revoke": {
+      "post": {
+        "tags": ["Revocation Service"],
+        "summary": "Revoke a credential",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "credentialId": { "type": "string" },
+                  "issuerDid": { "type": "string" },
+                  "reason": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

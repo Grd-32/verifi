@@ -1,0 +1,144 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Run E2E tests
+        run: pnpm test:e2e
+
+  build:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Veramo Agent
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/veramo-agent
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/kyc-vault-veramo-agent:latest
+
+      - name: Build and push Issuer Service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/issuer-service
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/kyc-vault-issuer-service:latest
+
+      - name: Build and push Verifier Service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/verifier-service
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/kyc-vault-verifier-service:latest
+
+      - name: Build and push Notification Service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/notification-service
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/kyc-vault-notification-service:latest
+
+      - name: Build and push Revocation Service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/revocation-service
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/kyc-vault-revocation-service:latest
+
+      - name: Build and push Wallet Frontend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./apps/wallet-frontend
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/kyc-vault-wallet-frontend:latest
+
+  deploy-staging:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Deploy to Staging K8s
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_STAGING }}
+        run: |
+          echo "$KUBE_CONFIG" | base64 -d > $KUBECONFIG
+          kubectl apply -f infra/k8s/
+          kubectl rollout restart deployment -n kyc-vault
+
+  deploy-production:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Deploy to Production K8s
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
+        run: |
+          echo "$KUBE_CONFIG" | base64 -d > $KUBECONFIG
+          kubectl apply -f infra/k8s/
+          kubectl rollout restart deployment -n kyc-vault
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Snyk Security Scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

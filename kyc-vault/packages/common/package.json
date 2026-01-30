@@ -1,0 +1,28 @@
+{
+  "name": "common",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^4.5.0",
+    "jest": "^27.0.0",
+    "@types/jest": "^27.0.0",
+    "@types/node": "^16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/kyc-vault.git"
+  },
+  "keywords": [
+    "KYC",
+    "vault",
+    "common",
+    "utilities"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

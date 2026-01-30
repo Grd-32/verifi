@@ -1,0 +1,5 @@
+workspaceLayout:
+  packages:
+    - 'apps/*'
+    - 'packages/*'
+    - 'services/*'

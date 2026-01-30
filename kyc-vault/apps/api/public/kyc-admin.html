@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYC Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        .header p {
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .table-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .table-section h2 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.3em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .badge.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .badge.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .badge.rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .badge.verified {
+            background: #cfe2ff;
+            color: #084298;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+        .action-btn.view {
+            background: #667eea;
+            color: white;
+        }
+        .action-btn.view:hover {
+            background: #5568d3;
+        }
+        .action-btn.approve {
+            background: #28a745;
+            color: white;
+        }
+        .action-btn.approve:hover {
+            background: #218838;
+        }
+        .action-btn.reject {
+            background: #dc3545;
+            color: white;
+        }
+        .action-btn.reject:hover {
+            background: #c82333;
+        }
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-bar select,
+        .filter-bar input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 KYC Admin Dashboard</h1>
+        <p>Manage KYC applications, documents, and verification status</p>
+    </div>
+
+    <div class="container">
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Total Applications</div>
+                <div class="value" id="totalApps">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Pending Review</div>
+                <div class="value" id="pendingApps" style="color: #ff9800;">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Approved</div>
+                <div class="value" id="approvedApps" style="color: #4caf50;">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Rejected</div>
+                <div class="value" id="rejectedApps" style="color: #f44336;">-</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="table-section">
+            <h2>Filters & Search</h2>
+            <div class="filter-bar">
+                <input type="text" id="searchInput" placeholder="Search by ID, name, or email...">
+                <select id="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <select id="verificationFilter">
+                    <option value="">All Verification</option>
+                    <option value="verified">Verified</option>
+                    <option value="unverified">Unverified</option>
+                </select>
+                <button onclick="applyFilters()" style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Apply Filters</button>
+            </div>
+        </div>
+
+        <!-- KYC Applications Table -->
+        <div class="table-section">
+            <h2>KYC Applications</h2>
+            <table id="applicationsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Verification</th>
+                        <th>Documents</th>
+                        <th>Submitted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #999;">Loading applications...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Documents Pending Review -->
+        <div class="table-section">
+            <h2>Documents Pending Review</h2>
+            <table id="documentsTable">
+                <thead>
+                    <tr>
+                        <th>Document ID</th>
+                        <th>Applicant</th>
+                        <th>Type</th>
+                        <th>Upload Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="docsBody">
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: #999;">Loading documents...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="table-section">
+            <h2>Recent Activity</h2>
+            <table id="activityTable">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Action</th>
+                        <th>User</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="activityBody">
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px; color: #999;">No recent activity</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>KYC Admin Dashboard | Real-time data | Auto-refresh every 30 seconds</p>
+    </div>
+
+    <script>
+        const API_URL = '/api/kyc';
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboardData();
+            // Auto-refresh every 30 seconds
+            setInterval(loadDashboardData, 30000);
+        });
+
+        async function loadDashboardData() {
+            try {
+                // Load applications
+                const applicationsResponse = await fetch(`${API_URL}/applications`);
+                if (applicationsResponse.ok) {
+                    const applications = await applicationsResponse.json();
+                    updateStats(applications);
+                    displayApplications(applications);
+                }
+
+                // Load documents
+                const documentsResponse = await fetch(`${API_URL}/documents`);
+                if (documentsResponse.ok) {
+                    const documents = await documentsResponse.json();
+                    displayDocuments(documents.filter(d => d.status === 'pending'));
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function updateStats(applications) {
+            const total = applications.length;
+            const pending = applications.filter(a => a.status === 'pending').length;
+            const approved = applications.filter(a => a.status === 'approved').length;
+            const rejected = applications.filter(a => a.status === 'rejected').length;
+
+            document.getElementById('totalApps').textContent = total;
+            document.getElementById('pendingApps').textContent = pending;
+            document.getElementById('approvedApps').textContent = approved;
+            document.getElementById('rejectedApps').textContent = rejected;
+        }
+
+        function displayApplications(applications) {
+            const tbody = document.getElementById('tableBody');
+            
+            if (applications.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: #999;">No applications found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = applications.map(app => `
+                <tr>
+                    <td><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.85em;">${app.id || 'N/A'}</code></td>
+                    <td>${app.fullName || 'N/A'}</td>
+                    <td>${app.email || 'N/A'}</td>
+                    <td><span class="badge ${app.status}">${app.status || 'pending'}</span></td>
+                    <td><span class="badge ${app.verified ? 'verified' : 'pending'}">${app.verified ? 'Verified' : 'Unverified'}</span></td>
+                    <td>${app.documents?.length || 0} files</td>
+                    <td>${new Date(app.createdAt || Date.now()).toLocaleDateString()}</td>
+                    <td>
+                        <button class="action-btn view" onclick="viewApplication('${app.id}')">View</button>
+                        ${app.status === 'pending' ? `
+                            <button class="action-btn approve" onclick="approveApplication('${app.id}')">Approve</button>
+                            <button class="action-btn reject" onclick="rejectApplication('${app.id}')">Reject</button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function displayDocuments(documents) {
+            const tbody = document.getElementById('docsBody');
+            
+            if (documents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #999;">No documents pending review</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = documents.map(doc => `
+                <tr>
+                    <td><code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.85em;">${doc.id || 'N/A'}</code></td>
+                    <td>${doc.applicantName || 'N/A'}</td>
+                    <td>${doc.type || 'N/A'}</td>
+                    <td>${new Date(doc.uploadedAt || Date.now()).toLocaleDateString()}</td>
+                    <td><span class="badge pending">${doc.status || 'pending'}</span></td>
+                    <td>
+                        <button class="action-btn view" onclick="viewDocument('${doc.id}')">Review</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function viewApplication(id) {
+            alert(`View application: ${id}\n\nThis would open a detailed view of the application.`);
+        }
+
+        function approveApplication(id) {
+            if (confirm(`Approve application ${id}?`)) {
+                alert('Application approved!');
+                loadDashboardData();
+            }
+        }
+
+        function rejectApplication(id) {
+            const reason = prompt('Enter rejection reason:');
+            if (reason) {
+                alert(`Application rejected with reason: ${reason}`);
+                loadDashboardData();
+            }
+        }
+
+        function viewDocument(id) {
+            alert(`View document: ${id}\n\nThis would open the document for review.`);
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value;
+            const status = document.getElementById('statusFilter').value;
+            const verification = document.getElementById('verificationFilter').value;
+            
+            console.log('Applying filters:', { search, status, verification });
+            alert('Filters applied (check console for details)');
+        }
+    </script>
+</body>
+</html>
